@@ -1,0 +1,65 @@
+🧩 Problem Statement:
+Patients—especially those on multiple medications—are at risk of dangerous drug interactions, in-appropriate dosing, and un-noticed medical alerts. 
+Most people lack the medical knowledge or time to manually research interactions or FDA warnings for their prescriptions.
+
+
+Doctors and pharmacists do have tools, but there's a gap in user-friendly, AI-powered apps that:
+1. Let users check interactions independently
+2. Explain medical risks in simple terms
+3. Suggest safer alternatives or doses
+4. Provide AI-researched summaries
+
+
+🧪 What This Project Does:
+Pharma Copilot is a full-stack AI-powered tool that:
+
+✅ Takes patient info (name, age, weight) and a list of medications
+
+🚦 Analyzes potential risks like:
+
+1. Drug-to-drug interactions
+
+2. Dosage safety based on patient age/weight
+
+3. Known black box warnings or alerts
+
+
+🧠 Uses multiple AI agents to:
+
+1. Scan for interactions
+
+2. Suggest dosage adjustments
+
+3. Explain medical risks in simple terms
+
+4. Provide research-backed summaries
+
+
+📄 Shows all results in a clean, downloadable report UI
+
+
+🤖 AI Agents Working Behind the Scenes:
+Each agent has a clear task:
+
+DrugScanAgent: checks if a drug is risky or blacklisted
+
+DoseAdjustAgent: recommends dose changes based on age/weight
+
+AlertAgent: raises warnings about high-risk combinations
+
+ExplainAgent: simplifies interactions in user-friendly language
+
+ResearchAgent: pulls background insights from research papers
+
+All of these are powered via Hugging Face LLMs and fallback to mocked responses if the API fails.
+
+
+
+🛠️ Tech Stack Used:
+Frontend: React + Tailwind CSS (clean UI for form/report)
+
+Backend: FastAPI (handles analysis requests)
+
+AI Layer: LangChain agents + HuggingFace inference
+
+Database: Optional – could be used to store patient history (not implemented yet)
