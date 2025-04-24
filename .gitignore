@@ -1,0 +1,38 @@
+# --- Node.js / React ---
+node_modules/
+dist/
+.vite/
+build/
+*.log
+
+# --- Python / FastAPI ---
+__pycache__/
+*.py[cod]
+*.so
+*.egg-info/
+venv/
+.env
+.env.*
+
+# --- SQLite / DB ---
+*.db
+*.sqlite3
+diagnosis.db
+
+# --- IDE / Editor ---
+.vscode/
+.idea/
+*.code-workspace
+
+# --- OS ---
+.DS_Store
+Thumbs.db
+
+# --- Misc ---
+*.swp
+*.bak
+*.tmp
+*.log
+coverage/
+*.cover
+coverage.xml

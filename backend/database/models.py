@@ -1,22 +1,18 @@
-from sqlalchemy import Column, Integer, String, Float, ForeignKey
-from sqlalchemy.orm import relationship
-from backend.database.db import Base
+# db/models.py
 
-class Patient(Base):
-    __tablename__ = "patients"
+from sqlalchemy import Column, Integer, String, Text
+from sqlalchemy.ext.declarative import declarative_base
+
+Base = declarative_base()
+
+class PatientReport(Base):
+    __tablename__ = "patient_reports"
 
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, nullable=False)
+    name = Column(String(100), nullable=False)
     age = Column(Integer, nullable=False)
-    weight = Column(Float, nullable=False)
-
-    medications = relationship("Medication", back_populates="patient")
-
-class Medication(Base):
-    __tablename__ = "medications"
-
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, nullable=False)
-    patient_id = Column(Integer, ForeignKey("patients.id"))
-
-    patient = relationship("Patient", back_populates="medications")
+    medical_report = Column(Text, nullable=False)
+    cardiologist_result = Column(Text)
+    psychologist_result = Column(Text)
+    pulmonologist_result = Column(Text)
+    final_diagnosis = Column(Text)
