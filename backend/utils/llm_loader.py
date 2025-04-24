@@ -14,8 +14,8 @@ def load_llm():
         raise ValueError("Missing Hugging Face API token. Please check your .env file.")
 
     try:
-        print("🔁 Loading Hugging Face model...")
+        print(" Loading Hugging Face model...")
         return InferenceClient(model=MODEL_ID, token=TOKEN)
     except Exception as e:
-        print(f"❌ Failed to initialize Hugging Face model: {e}")
+        print(f" Failed to initialize Hugging Face model: {e}")
         raise RuntimeError("Could not load the language model.")

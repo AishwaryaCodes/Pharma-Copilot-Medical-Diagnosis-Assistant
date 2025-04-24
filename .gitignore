@@ -36,3 +36,8 @@ Thumbs.db
 coverage/
 *.cover
 coverage.xml
+
+
+# FAISS vector memory files
+*.bin
+*.pkl

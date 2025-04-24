@@ -6,6 +6,7 @@ from backend.database.database import Base, engine
 from backend.database.models import PatientReport
 from backend.database import models
 from backend.routes import diagnosis
+from backend.routes import history
 
 # Create tables
 Base.metadata.create_all(bind=engine)
@@ -28,3 +29,7 @@ app.add_middleware(
 
 # Include diagnosis route
 app.include_router(diagnosis.router)
+
+
+app.include_router(history.router)
+
