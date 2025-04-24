@@ -1,22 +1,23 @@
-
-import sys
-import os
-
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+# backend/main.py
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from backend.database.db import Base, engine
-from backend.routes import analysis  # We'll create this next
+from backend.database.database import Base, engine
+from backend.database.models import PatientReport
+from backend.database import models
+from backend.routes import diagnosis
 
-# Auto-create all DB tables
+# Create tables
 Base.metadata.create_all(bind=engine)
+print("✅ Database and tables created!")
 
-app = FastAPI()
-# Include all routes
-app.include_router(analysis.router)
+app = FastAPI(
+    title="MediAI Diagnostics",
+    description="A full-stack agentic AI system for multi-specialist diagnosis",
+    version="1.0"
+)
 
-# Allow frontend to connect (from localhost:5173)
+# CORS Middleware for frontend (React)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173"],
@@ -25,6 +26,5 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
-
-
+# Include diagnosis route
+app.include_router(diagnosis.router)
