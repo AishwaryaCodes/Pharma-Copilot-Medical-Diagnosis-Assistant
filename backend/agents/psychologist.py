@@ -2,6 +2,7 @@
 
 from langchain_core.prompts import PromptTemplate
 from backend.agents.llm.hf_client import hf_generate
+from backend.utils.faiss_memory import search_similar_cases 
 
 class Psychologist:
     def __init__(self, name: str, age: int, medical_report: str, llm):
@@ -12,14 +13,33 @@ class Psychologist:
 
 
     def run(self):
+        similar_cases = search_similar_cases(self.medical_report, k=3)
+        similar_text = "\n".join([f"- {case}" for case in similar_cases])
+        
         prompt = PromptTemplate.from_template("""
             You are a licensed **clinical psychologist**.
-            Analyze the patient's symptoms and determine if there are any signs of mental health issues like depression, anxiety, or trauma.
 
-            Provide a psychological assessment and clear therapy recommendations.
+            Patient Name: {name}
+            Age: {age}
+            Reported Symptoms: {medical_report}
 
-            Patient Report:
-            {medical_report}
+            Similar past psychological cases:
+            {similar_cases}
+
+            === Task ===
+            1. Analyze potential mental health concerns (e.g. anxiety, depression, trauma).
+            2. Provide a psychological assessment.
+            3. Suggest therapy options or next steps.
+
+            Be thoughtful, precise, and empathetic in your response.
         """)
-        formatted_prompt = prompt.format(medical_report=self.medical_report)
+        
+        
+        formatted_prompt = prompt.format(
+            name=self.name,
+            age=self.age,
+            medical_report=self.medical_report,
+            similar_cases=similar_text
+        )
+       
         return hf_generate(formatted_prompt)

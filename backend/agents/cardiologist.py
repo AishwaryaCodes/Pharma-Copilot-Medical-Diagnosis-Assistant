@@ -1,5 +1,6 @@
 from langchain_core.prompts import PromptTemplate
-from backend.agents.llm.hf_client import hf_generate  # ✅ use your huggingface generator
+from backend.agents.llm.hf_client import hf_generate
+from backend.utils.faiss_memory import search_similar_cases  
 
 class Cardiologist():
     def __init__(self, name: str, age: int, medical_report: str, llm):
@@ -9,19 +10,35 @@ class Cardiologist():
         self.llm = llm
 
 
-    def run(self):
+    def run(self):  
+        similar_cases = search_similar_cases(self.medical_report, k=3)
+        similar_text = "\n".join([f"- {case}" for case in similar_cases])
+        
         prompt = PromptTemplate.from_template("""
             You are a highly experienced **cardiologist**.
-            Analyze the following patient report and identify any cardiac issues (e.g. chest pain, palpitations, shortness of breath, hypertension).
             
-            Task:
-            1. Identify potential cardiovascular conditions.
-            2. Recommend any necessary diagnostic tests or follow-ups.
+            Analyze the following patient report 
+            
+            Patient Name: {name}
+            Age: {age}
+            Current Report: {medical_report}
 
-            Be specific in your diagnosis and recommend next steps or tests (e.g. ECG, echo, Holter).
+            Similar past cases:
+            {similar_cases}
 
-            Patient Report:
-            {medical_report}
+            === Task ===
+            1. Determine if the report contains any cardiovascular conditions.
+            2. Suggest appropriate tests or referrals.
+            3. If unrelated to cardiology, explain briefly.
+
+            Give a medically sound, clear, and specific response.
         """)
-        formatted = prompt.format(medical_report=self.medical_report)
+        
+        formatted = prompt.format(
+            name=self.name,
+            age=self.age,
+            medical_report=self.medical_report,
+            similar_cases=similar_text
+            )
+        
         return hf_generate(formatted)
