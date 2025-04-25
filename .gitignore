@@ -1,11 +1,11 @@
-# --- Node.js / React ---
+# === Node.js / React ===
 node_modules/
 dist/
 .vite/
 build/
 *.log
 
-# --- Python / FastAPI ---
+# === Python / FastAPI ===
 __pycache__/
 *.py[cod]
 *.so
@@ -14,21 +14,21 @@ venv/
 .env
 .env.*
 
-# --- SQLite / DB ---
+# === SQLite / DB Files ===
 *.db
 *.sqlite3
 diagnosis.db
 
-# --- IDE / Editor ---
+# === IDE / Editor Configs ===
 .vscode/
 .idea/
 *.code-workspace
 
-# --- OS ---
+# === OS / System Files ===
 .DS_Store
 Thumbs.db
 
-# --- Misc ---
+# === Misc ===
 *.swp
 *.bak
 *.tmp
@@ -37,7 +37,14 @@ coverage/
 *.cover
 coverage.xml
 
-
-# FAISS vector memory files
+# === FAISS Vector Memory Files ===
 *.bin
 *.pkl
+
+# === VS Code Git-related ===
+.history/
+*.orig
+
+# === Optional: Ignore test artifacts ===
+*.test.js.snap
+jest-coverage/
