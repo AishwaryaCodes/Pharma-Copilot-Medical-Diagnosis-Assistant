@@ -1,4 +1,4 @@
-Doctors often struggle to quickly analyze detailed medical reports, reference similar past cases, and provide multi-specialist insights during diagnosis. This can lead to delays, oversight, or repetitive work, especially in high-pressure clinical environments.
+**Doctors often struggle to quickly analyze detailed medical reports, reference similar past cases, and provide multi-specialist insights during diagnosis. This can lead to delays, oversight, or repetitive work, especially in high-pressure clinical environments.**
 --- Pharma Copilot addresses this by offering an AI-powered assistant that streamlines diagnosis, retrieves similar past cases, and simulates analysis from cardiologist, pulmonologist, and psychologist perspectives, all in one place.
 
 ---
