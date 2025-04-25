@@ -1,5 +1,4 @@
-i want to work on 
-🔄 Memory + Retrieval	Use a vector store like FAISS to let agents reference past similar cases.
+i want to work on / Future work
 🧠 Agent Reasoning Chain	Use LangGraph or CrewAI to have agents ask each other questions before concluding.
 📝 PDF/CSV Export	Add export options for doctors to download results.
 📡 Voice-to-Text Input	Let users speak symptoms using Whisper API.

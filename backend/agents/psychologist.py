@@ -18,6 +18,8 @@ class Psychologist:
         
         prompt = PromptTemplate.from_template("""
             You are a licensed **clinical psychologist**.
+            
+            dont include raw data like === Assistant === or  === Analysis ===
 
             Patient Name: {name}
             Age: {age}
