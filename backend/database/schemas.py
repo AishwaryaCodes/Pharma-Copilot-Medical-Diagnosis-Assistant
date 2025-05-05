@@ -18,4 +18,4 @@ class ReportResponse(ReportBase):
     final_diagnosis: str
 
     class Config:
-        orm_mode = True
+        from_attributes = True

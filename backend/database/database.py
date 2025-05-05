@@ -1,4 +1,5 @@
 # backend/database/database.py
+# Setting up connection between python code and diagnosis.db (Database)
 
 import os
 from sqlalchemy import create_engine
