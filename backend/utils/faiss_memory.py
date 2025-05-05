@@ -4,47 +4,35 @@ import numpy as np
 import os
 import pickle
 
-# Load once globally
+# Load once globally - Load the pretrained SentenceTransformer model 
+# model turns medical text into a numerical embedding 
 model = SentenceTransformer("all-MiniLM-L6-v2")
 
-# Simulated past diagnoses (replace this with DB fetch)
-sample_reports = [
-    "Patient experienced chest pain and shortness of breath.",
-    "Mild fever with nasal congestion and headache.",
-    "Palpitations noted during exertion.",
-    "Persistent cough and wheezing over 2 weeks.",
-    "Severe anxiety and insomnia reported."
-]
-
-def create_faiss_index(reports):
+def create_faiss_index(reports: list[str]):
     embeddings = model.encode(reports)
     index = faiss.IndexFlatL2(embeddings.shape[1])
     index.add(np.array(embeddings))
 
-    # Save both index and text mappings
-   
     faiss.write_index(index, "backend/utils/faiss_index.bin")
-    
     with open("backend/utils/report_texts.pkl", "wb") as f:
         pickle.dump(reports, f)
 
-    print(" FAISS index and texts saved.")
-
-if __name__ == "__main__":
-    create_faiss_index(sample_reports)
-
+    print("✅ FAISS index created and saved.")
 
 def search_similar_cases(new_report: str, k: int = 3):
-    # Load saved index
+    # Step 1: Load saved FAISS index and report text mappings
     index = faiss.read_index("backend/utils/faiss_index.bin")
+    
     with open("backend/utils/report_texts.pkl", "rb") as f:
         report_texts = pickle.load(f)
 
-    # Encode new report
+    # Step 2: Convert the new medical report to an embedding vector
     new_embedding = model.encode([new_report])
     
-    # Search top-k similar reports
+    # Step 3: Search the FAISS index for top-k most similar cases
     distances, indices = index.search(np.array(new_embedding), k)
-    similar = [report_texts[i] for i in indices[0]]
+    
+    # Step 4: Retrieve the original text of the similar reports
+    return [report_texts[i] for i in indices[0]]
 
-    return similar
+
