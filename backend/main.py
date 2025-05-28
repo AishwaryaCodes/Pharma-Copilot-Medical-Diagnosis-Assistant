@@ -18,6 +18,11 @@ app = FastAPI(
     version="1.0"
 )
 
+
+@app.get("/")
+def read_root():
+    return {"message": "Pharma Copilot Backend is running"}
+
 # CORS Middleware for frontend (React)
 app.add_middleware(
     CORSMiddleware,
