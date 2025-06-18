@@ -1,50 +1,45 @@
-# === Node.js / React ===
+# === Node.js / React Frontend ===
 node_modules/
 dist/
 .vite/
 build/
 *.log
 
-# === Python / FastAPI ===
+# === Python / FastAPI Backend ===
 __pycache__/
 *.py[cod]
 *.so
 *.egg-info/
-venv/
-.env
-.env.*
+venv/               # Python virtual environment
+.env                # Environment secrets
+.env.*              # Any other .env variants
 
-# === SQLite / DB Files ===
+# === Databases ===
 *.db
 *.sqlite3
-diagnosis.db
+diagnosis.db        # Your local SQLite DB
 
-# === IDE / Editor Configs ===
+# === FAISS Vector DB Files ===
+*.bin
+*.pkl
+
+# === IDE / Editor / Tooling ===
 .vscode/
 .idea/
 *.code-workspace
 
-# === OS / System Files ===
+# === OS Generated Files ===
 .DS_Store
 Thumbs.db
 
-# === Misc ===
+# === Misc Build/Test Files ===
 *.swp
 *.bak
 *.tmp
-*.log
 coverage/
 *.cover
 coverage.xml
-
-# === FAISS Vector Memory Files ===
-*.bin
-*.pkl
-
-# === VS Code Git-related ===
-.history/
 *.orig
-
-# === Optional: Ignore test artifacts ===
-*.test.js.snap
+.history/
 jest-coverage/
+*.test.js.snap
