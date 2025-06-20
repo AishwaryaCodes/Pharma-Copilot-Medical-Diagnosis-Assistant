@@ -1,3 +1,13 @@
+# === Python / FastAPI Backend ===
+venv/
+backend/venv/
+__pycache__/
+*.py[cod]
+*.so
+*.egg-info/
+.env
+.env.*
+
 # === Node.js / React Frontend ===
 node_modules/
 dist/
@@ -5,19 +15,10 @@ dist/
 build/
 *.log
 
-# === Python / FastAPI Backend ===
-__pycache__/
-*.py[cod]
-*.so
-*.egg-info/
-venv/               # Python virtual environment
-.env                # Environment secrets
-.env.*              # Any other .env variants
-
 # === Databases ===
 *.db
 *.sqlite3
-diagnosis.db        # Your local SQLite DB
+diagnosis.db
 
 # === FAISS Vector DB Files ===
 *.bin
@@ -43,4 +44,3 @@ coverage.xml
 .history/
 jest-coverage/
 *.test.js.snap
-
