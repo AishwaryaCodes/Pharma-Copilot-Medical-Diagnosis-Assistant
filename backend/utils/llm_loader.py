@@ -2,9 +2,10 @@
 
 import os
 from dotenv import load_dotenv
+load_dotenv()
 from huggingface_hub import InferenceClient
 
-load_dotenv()
+
 
 MODEL_ID = "HuggingFaceH4/zephyr-7b-beta"
 TOKEN = os.getenv("HUGGINGFACEHUB_API_TOKEN")

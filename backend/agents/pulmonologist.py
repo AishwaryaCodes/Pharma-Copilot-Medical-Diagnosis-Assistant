@@ -11,8 +11,14 @@ class Pulmonologist:
         self.llm = llm
          
     def run(self):
-        similar_cases = search_similar_cases(self.medical_report, k=3)
-        similar_text = "\n".join([f"- {case}" for case in similar_cases])
+        try:
+            similar_cases = search_similar_cases(self.medical_report, k=3)
+            if similar_cases:
+                similar_text = "\n".join([f"- {case}" for case in similar_cases])
+            else:
+                similar_text = "(No similar past cases found)"
+        except Exception:
+            similar_text = "(No similar past cases found)"
         
         prompt = PromptTemplate.from_template("""
             You are a board-certified **pulmonologist**.

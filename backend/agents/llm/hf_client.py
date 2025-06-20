@@ -1,5 +1,8 @@
 # llm/hf_client.py
 
+from dotenv import load_dotenv
+load_dotenv()
+
 from huggingface_hub import InferenceClient
 import os
 

@@ -12,7 +12,7 @@ export default function Navbar() {
         {/* Left side: Brand + Icon */}
         <div className="flex items-center gap-2">
           <FaBrain className="text-2xl" />
-          <Link to="/" className="text-xl font-bold tracking-wide">
+          <Link to="/dashboard" className="text-xl font-bold tracking-wide">
             Pharma Copilot
           </Link>
         </div>
@@ -31,7 +31,7 @@ export default function Navbar() {
             </Link>
           ) : (
             <Link
-              to="/"
+              to="/dashboard"
               className="btn btn-sm btn-outline border-white text-white hover:bg-white hover:text-blue-900"
             >
               <div className="flex items-center space-x-2 cursor-pointer">
