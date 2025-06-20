@@ -5,16 +5,16 @@ export const exportDiagnosisAsTxt = (result) => {
   Patient Name: ${result.name}
   Age: ${result.age}
   
-  🫀 Cardiologist Result:
+   Cardiologist Result:
   ${result.cardiologist_result || "N/A"}
   
-  🧠 Psychologist Result:
+   Psychologist Result:
   ${result.psychologist_result || "N/A"}
   
-  🫁 Pulmonologist Result:
+   Pulmonologist Result:
   ${result.pulmonologist_result || "N/A"}
   
-  🧾 Final Diagnosis:
+   Final Diagnosis:
   ${result.final_diagnosis || "N/A"}
     `.trim();
   

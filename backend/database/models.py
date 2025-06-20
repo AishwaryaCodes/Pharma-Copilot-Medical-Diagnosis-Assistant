@@ -2,6 +2,10 @@
 
 from sqlalchemy import Column, Integer, String, Text
 from sqlalchemy.ext.declarative import declarative_base
+from .database import Base
+
+# Import the Doctor model
+from .doctor import Doctor
 
 Base = declarative_base()
 
