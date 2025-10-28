@@ -1,5 +1,6 @@
 # routes/diagnosis.py
-
+from datetime import datetime
+from sqlalchemy.orm import Session
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from backend.database.schemas import ReportCreate as PatientReportCreate, ReportResponse as PatientReportResponse

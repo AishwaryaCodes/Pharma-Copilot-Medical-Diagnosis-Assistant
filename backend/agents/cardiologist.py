@@ -24,8 +24,6 @@ class Cardiologist():
         prompt = PromptTemplate.from_template("""
             You are a highly experienced **cardiologist**.
 
-            Don't include raw data like === Assistant === or === Analysis ===
-
             Analyze the following patient report:
 
             Patient Name: {name}

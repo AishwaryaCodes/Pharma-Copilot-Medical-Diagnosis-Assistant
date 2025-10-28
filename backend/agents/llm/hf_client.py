@@ -1,27 +1,43 @@
-# llm/hf_client.py
-
 from dotenv import load_dotenv
 load_dotenv()
 
-from huggingface_hub import InferenceClient
 import os
+from huggingface_hub import InferenceClient
 
-token = os.getenv("HUGGINGFACEHUB_API_TOKEN")
-client = InferenceClient(model="HuggingFaceH4/zephyr-7b-beta", token=token)
+HF_TOKEN = os.getenv("HUGGINGFACEHUB_API_TOKEN")
+HF_MODEL_ID = os.getenv("HF_MODEL_ID", "mistralai/Mistral-7B-Instruct-v0.2")
 
-def hf_generate(prompt: str) -> str:    
+client = InferenceClient(model=HF_MODEL_ID, token=HF_TOKEN)
+
+SYSTEM_MSG = "You are a concise, clinically careful medical assistant. Respond clearly and avoid speculation."
+
+def hf_generate(prompt: str, max_tokens: int = 256, temperature: float = 0.7) -> str:
+    """
+    Chat-first (conversational) generation. If chat fails, try text_generation as a fallback.
+    """
+    # 1) Chat/completions (works for providers exposing 'conversational')
     try:
-        response = client.text_generation(prompt=prompt, max_new_tokens=200)
-        print(" Hugging Face Response:", response)
-        
-        
-        if response.strip().startswith(("=== Assistant ===", "=== Analysis ===")):
-            response = response.strip()
-        
-        for prefix in ("=== Assistant ===", "=== Analysis ==="):
-            if response.startswith(prefix):
-                response = response.replace(prefix, "", 1).strip()
-            
-        return response
-    except Exception as e:
-        return f"[Mocked] Error occurred: {e}"
+        resp = client.chat.completions.create(
+            model=HF_MODEL_ID,
+            messages=[
+                {"role": "system", "content": SYSTEM_MSG},
+                {"role": "user", "content": prompt},
+            ],
+            max_tokens=max_tokens,
+            temperature=temperature,
+        )
+        return resp.choices[0].message.content.strip()
+    except Exception as e_chat:
+        # 2) Fallback to plain text_generation for providers that support it
+        try:
+            text = client.text_generation(
+                prompt=prompt,
+                max_new_tokens=max_tokens,
+                temperature=temperature,
+                top_p=0.9,
+                repetition_penalty=1.05,
+                stop=["</s>", "###", "User:", "Assistant:"],
+            )
+            return text.strip()
+        except Exception as e_gen:
+            return f"[LLM Error] chat={e_chat}; text_generation={e_gen}"

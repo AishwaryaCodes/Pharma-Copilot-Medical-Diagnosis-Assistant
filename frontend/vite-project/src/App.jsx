@@ -6,6 +6,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import PrivateRoute from "./components/PrivateRoute";
 import Dashboard from "./pages/Dashboard";
+import Profile from "./pages/Profile";
 
 function AppWrapper() {
   const location = useLocation();
@@ -44,6 +45,15 @@ function AppWrapper() {
             </PrivateRoute>
           }
         />
+
+        <Route
+        path="/profile"
+        element={
+          <PrivateRoute>
+            <Profile />
+          </PrivateRoute>
+        }
+      />
       </Routes>
     </>
   );

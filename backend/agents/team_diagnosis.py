@@ -1,5 +1,6 @@
 # backend/agents/team_diagnosis.py
 
+from backend.agents.llm.hf_client import hf_generate
 from langchain_core.prompts import PromptTemplate
 
 class MultidisciplinaryTeam:
@@ -7,7 +8,6 @@ class MultidisciplinaryTeam:
         self.cardiologist = cardiologist
         self.psychologist = psychologist
         self.pulmonologist = pulmonologist
-        self.llm = llm
 
     def run(self):
         prompt = PromptTemplate.from_template("""
@@ -40,4 +40,4 @@ class MultidisciplinaryTeam:
         )
         
         print("🧠 MultidisciplinaryTeam Prompt Sent:", formatted_prompt)
-        return self.llm.text_generation(prompt=formatted_prompt)
+        return hf_generate(prompt=formatted_prompt)

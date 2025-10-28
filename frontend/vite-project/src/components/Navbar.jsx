@@ -1,43 +1,51 @@
 import { Link, useLocation } from "react-router-dom";
-import { FaBrain } from "react-icons/fa";
-import { IoIosArrowBack } from "react-icons/io";
-import { IoIosArrowForward } from "react-icons/io";
+import { FaBrain, FaUserCircle } from "react-icons/fa";
+import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 
 export default function Navbar() {
   const { pathname } = useLocation();
+  const onHistoryPage = pathname === "/history";
 
   return (
     <nav className="w-full bg-gradient-to-r from-blue-900 to-cyan-600 text-white shadow-lg sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
-        {/* Left side: Brand + Icon */}
-        <div className="flex items-center gap-2">
+      <div className="mx-auto max-w-7xl px-4 h-14 flex items-center">
+        {/* Left: Brand */}
+        <Link to="/dashboard" className="flex items-center gap-2">
           <FaBrain className="text-2xl" />
-          <Link to="/dashboard" className="text-xl font-bold tracking-wide">
-            Pharma Copilot
-          </Link>
-        </div>
+          <span className="text-lg font-semibold tracking-wide">Pharma Copilot</span>
+        </Link>
 
-        {/* Right side: Navigation */}
-        <div>
-          {pathname !== "/history" ? (
+        {/* Right: actions (group them together!) */}
+        <div className="ml-auto flex items-center gap-2">
+          {/* Profile */}
+          <Link
+            to="/profile"
+            className="hidden sm:inline-flex items-center gap-2 rounded-lg px-3 py-1.5
+                       bg-white/10 hover:bg-white/20 transition"
+            title="Profile"
+          >
+            <FaUserCircle className="text-xl" />
+            <span className="text-sm">Profile</span>
+          </Link>
+
+          {/* History / Home toggle */}
+          {onHistoryPage ? (
             <Link
-              to="/history"
-              className="btn btn-sm btn-outline border-white text-white hover:bg-white hover:text-blue-900"
+              to="/dashboard"
+              className="inline-flex items-center gap-2 rounded-lg px-3 py-1.5
+                         bg-white text-blue-900 hover:bg-white/90 transition"
             >
-              <div className="flex items-center space-x-2 cursor-pointer">
-              <span>View History</span>
-                <IoIosArrowForward className="text-xl" />
-              </div>
+              <IoIosArrowBack className="text-xl" />
+              <span className="text-sm font-medium">Home</span>
             </Link>
           ) : (
             <Link
-              to="/dashboard"
-              className="btn btn-sm btn-outline border-white text-white hover:bg-white hover:text-blue-900"
+              to="/history"
+              className="inline-flex items-center gap-2 rounded-lg px-3 py-1.5
+                         bg-white text-blue-900 hover:bg-white/90 transition"
             >
-              <div className="flex items-center space-x-2 cursor-pointer">
-                <IoIosArrowBack className="text-xl" />
-                <span>Home</span>
-              </div>
+              <span className="text-sm font-medium">View History</span>
+              <IoIosArrowForward className="text-xl" />
             </Link>
           )}
         </div>

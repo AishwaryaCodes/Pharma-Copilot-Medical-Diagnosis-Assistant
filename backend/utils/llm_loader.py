@@ -7,7 +7,7 @@ from huggingface_hub import InferenceClient
 
 
 
-MODEL_ID = "HuggingFaceH4/zephyr-7b-beta"
+MODEL_ID = "mistralai/Mistral-7B-Instruct-v0.2"
 TOKEN = os.getenv("HUGGINGFACEHUB_API_TOKEN")
 
 def load_llm():

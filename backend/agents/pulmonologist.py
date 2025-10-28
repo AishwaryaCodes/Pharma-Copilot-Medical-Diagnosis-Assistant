@@ -1,5 +1,6 @@
 # agents/pulmonologist.py
 
+from backend.agents.llm.hf_client import hf_generate
 from langchain_core.prompts import PromptTemplate
 from backend.utils.faiss_memory import search_similar_cases
 
@@ -22,8 +23,6 @@ class Pulmonologist:
         
         prompt = PromptTemplate.from_template("""
             You are a board-certified **pulmonologist**.
-            
-            dont include raw data like === Assistant === or  === Analysis ===
 
             Patient Name: {name}
             Age: {age}
@@ -47,4 +46,4 @@ class Pulmonologist:
             similar_cases=similar_text
         )
         
-        return self.llm.text_generation(prompt=formatted)
+        return hf_generate(prompt=formatted)

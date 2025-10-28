@@ -1,6 +1,7 @@
 # db/models.py
 
-from sqlalchemy import Column, Integer, String, Text
+from sqlalchemy import Column, Integer, String, Text, DateTime, Boolean
+
 from sqlalchemy.ext.declarative import declarative_base
 from .database import Base
 
