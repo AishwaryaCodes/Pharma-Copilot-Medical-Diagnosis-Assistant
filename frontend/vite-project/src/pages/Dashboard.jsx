@@ -1,6 +1,7 @@
 // src/pages/Dashboard.jsx
 import React, { useEffect, useMemo, useState } from "react";
-import axios from "axios";
+import API from "../utils/api"; 
+
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import AgentTile from "../components/AgentTile";
@@ -13,7 +14,6 @@ import {
   Tooltip,
 } from "recharts";
 
-const API = "http://localhost:8000"; // adjust if needed
 
 function Card({ children, className = "" }) {
   return (
@@ -49,25 +49,22 @@ export default function Dashboard() {
   const [stats, setStats] = useState(null);
   const [recent, setRecent] = useState(null);
   const [loading, setLoading] = useState(true);
-
-  const client = useMemo(() => {
-    const token = localStorage.getItem("token");
-    return axios.create({
-      baseURL: API,
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
-    });
-  }, []);
+  const [trendData, setTrendData] = useState(null);
 
   useEffect(() => {
     let mounted = true;
     (async () => {
       try {
-        if (!localStorage.getItem("token")) return nav("/login");
+        if (!localStorage.getItem("token")) {
+          nav("/login");
+          return;
+        }
 
-        const [meRes, statsRes, recentRes] = await Promise.allSettled([
-          client.get("/me"),
-          client.get("/stats/overview"),                       // optional (has fallback below)
-          client.get("/reports", { params: { limit: 5 } }),    // change to your history endpoint if different
+        const [meRes, statsRes, recentRes, trendRes] = await Promise.allSettled([
+          API.get("/me"),
+          API.get("/stats/overview"),                       // optional (has fallback below)
+          API.get("/reports", { params: { limit: 5 } }),    // change to your history endpoint if different
+          API.get("/stats/trends"),
         ]);
 
         if (meRes.status === "fulfilled" && mounted) setDoctor(meRes.value.data);
@@ -88,6 +85,10 @@ export default function Dashboard() {
           }));
           setRecent(items);
         }
+        if (trendRes.status === "fulfilled" && mounted) {
+          // backend returns: [{ week: "W1", patients: 3 }, ...]
+              setTrendData(trendRes.value.data || []);
+          }
       } catch (e) {
         console.error(e);
         toast.error("Session expired. Please log in again.");
@@ -98,7 +99,7 @@ export default function Dashboard() {
       }
     })();
     return () => (mounted = false);
-  }, [client, nav]);
+  }, [nav]);
 
   // Fallback stats when /stats/overview not implemented
   const computedStats = useMemo(() => {
@@ -112,14 +113,6 @@ export default function Dashboard() {
       saved_reports: recent.length,
     };
   }, [stats, recent]);
-
-  // ----- MOCK chart data: replace with backend later
-  const trendData = [
-    { week: "W1", patients: 3, success: 0.9 },
-    { week: "W2", patients: 5, success: 0.95 },
-    { week: "W3", patients: 4, success: 0.92 },
-    { week: "W4", patients: 7, success: 0.97 },
-  ];
 
   const onNew = () => nav("/diagnose");
   const onHistory = () => nav("/history");
@@ -168,27 +161,6 @@ export default function Dashboard() {
               }
             />
             <Stat label="Saved Reports" value={computedStats?.saved_reports} />
-
-            {/* 👨‍⚕️ Doctor Snapshot */}
-            <Card>
-              <div className="flex items-center gap-3">
-                <img
-                  src="/default-avatar.png"
-                  alt="Doctor Avatar"
-                  className="w-12 h-12 rounded-full border"
-                  onError={(e) => (e.currentTarget.style.display = "none")}
-                />
-                <div className="min-w-0">
-                  <p className="font-semibold truncate">Dr. {doctor?.name ?? "—"}</p>
-                  <p className="text-sm text-gray-500 truncate">
-                    {doctor?.specialization || "General Practitioner"}
-                  </p>
-                  <p className="text-xs text-gray-400 truncate">
-                    {doctor?.hospital || "—"}
-                  </p>
-                </div>
-              </div>
-            </Card>
           </section>
         )}
 
@@ -274,7 +246,7 @@ export default function Dashboard() {
               <span className="text-xs text-slate-400">Last 4 weeks</span>
             </div>
             <ResponsiveContainer width="100%" height={220}>
-              <LineChart data={trendData}>
+              <LineChart data={trendData ?? []}>
                 <XAxis dataKey="week" />
                 <YAxis />
                 <Tooltip />

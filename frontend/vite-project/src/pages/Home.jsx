@@ -1,6 +1,7 @@
 // src/pages/Home.jsx
 import { useState } from "react";
-import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import API from "../utils/api";
 import Header from "../components/Header";
 import toast from "react-hot-toast";
 import { exportDiagnosisAsTxt } from "../utils/exportToTxt";
@@ -14,6 +15,7 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [expanded, setExpanded] = useState(null);
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -21,20 +23,29 @@ export default function Home() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    // Require auth; if missing, send to login.
+    if (!localStorage.getItem("token")) {
+       toast.error("Please log in first.");
+       navigate("/login");
+      return;
+     }
     setLoading(true);
     setResult(null);
     try {
-      const res = await axios.post("http://127.0.0.1:8000/diagnose", {
+      const res = await API.post("/diagnose", {
         name: formData.name,
-        age: parseInt(formData.age),
+        age: Number.isFinite(parseInt(formData.age, 10)) ? parseInt(formData.age, 10) : null,
         medical_report: formData.medical_report,
       });
       setResult(res.data);
       toast.success("Diagnosis completed successfully!");
     } catch (error) {
-      console.error("Diagnosis failed:", error);
-      setResult({ error: "Diagnosis failed. Please try again." });
-      toast.error("Something went wrong. Please try again.");
+      if (error?.response?.status === 401) {
+        toast.error("Session expired. Please log in again.");
+         localStorage.removeItem("token");
+         navigate("/login");
+        return;
+       }
     }
     setLoading(false);
   };

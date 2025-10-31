@@ -1,33 +1,54 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import axios from "axios";
+import toast from "react-hot-toast";
+import API from "../utils/api"; // ✅ shared axios client
 
-const Register = () => {
+export default function Register() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
+    // Optional fields (your DB allows them to be null):
+    specialization: "",
+    hospital: "",
   });
   const [error, setError] = useState("");
 
-  const handleChange = (e) => {
+  const handleChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+
     try {
-      await axios.post("http://localhost:8000/register", formData);
-      const loginRes = await axios.post("http://localhost:8000/login", {
+      // ✅ Register (keep optional fields if filled)
+      await API.post("/register", {
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
+        specialization: formData.specialization || null,
+        hospital: formData.hospital || null,
+      });
+
+      // ✅ Auto-login after register
+      const { data } = await API.post("/login", {
         email: formData.email,
         password: formData.password,
       });
-      localStorage.setItem("token", loginRes.data.access_token);
+
+      if (!data?.access_token) throw new Error("No token received");
+      localStorage.setItem("token", data.access_token);
+      toast.success("Account created!");
       navigate("/dashboard");
     } catch (err) {
-      setError(err.response?.data?.detail || "Registration failed");
+      const msg =
+        err.response?.data?.detail ||
+        err.response?.data?.message ||
+        "Registration failed";
+      setError(msg);
+      toast.error(msg);
     }
   };
 
@@ -48,10 +69,7 @@ const Register = () => {
 
       {/* Right: Form */}
       <div className="w-1/2 bg-gray-50 flex justify-center items-center px-4">
-        <form
-          onSubmit={handleSubmit}
-          className="bg-white p-8 rounded-lg shadow-md w-full max-w-sm"
-        >
+        <form onSubmit={handleSubmit} className="bg-white p-8 rounded-lg shadow-md w-full max-w-sm">
           <h2 className="text-2xl font-bold mb-4 text-center">Create Account</h2>
           {error && <p className="text-red-600 text-sm mb-3">{error}</p>}
 
@@ -80,12 +98,28 @@ const Register = () => {
             value={formData.password}
             onChange={handleChange}
             required
+            className="w-full p-2 mb-3 border border-gray-300 rounded"
+          />
+
+          {/* Optional fields (safe to leave blank) */}
+          <input
+            type="text"
+            name="specialization"
+            placeholder="Specialization (optional)"
+            value={formData.specialization}
+            onChange={handleChange}
+            className="w-full p-2 mb-3 border border-gray-300 rounded"
+          />
+          <input
+            type="text"
+            name="hospital"
+            placeholder="Hospital (optional)"
+            value={formData.hospital}
+            onChange={handleChange}
             className="w-full p-2 mb-4 border border-gray-300 rounded"
           />
-          <button
-            type="submit"
-            className="w-full bg-green-600 text-white p-2 rounded hover:bg-green-700"
-          >
+
+          <button type="submit" className="w-full bg-green-600 text-white p-2 rounded hover:bg-green-700">
             Register
           </button>
 
@@ -99,6 +133,4 @@ const Register = () => {
       </div>
     </div>
   );
-};
-
-export default Register;
+}

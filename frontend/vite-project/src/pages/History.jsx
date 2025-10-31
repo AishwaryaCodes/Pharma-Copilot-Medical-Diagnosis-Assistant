@@ -1,16 +1,16 @@
-import { useEffect, useState } from "react";
-import axios from "axios";
-import { MdSearch } from "react-icons/md";
-import { MdEdit } from "react-icons/md";
-import { MdDelete } from "react-icons/md";
+import { useEffect, useMemo, useState } from "react";
+import API from "../utils/api";
+import { MdSearch, MdEdit, MdDelete } from "react-icons/md";
+import toast from "react-hot-toast";
 
 export default function History() {
   const [reports, setReports] = useState([]);
   const [search, setSearch] = useState("");
   const [filtered, setFiltered] = useState([]);
   const [loading, setLoading] = useState(true);
+  const client = API;
 
-  //Pagination
+  // Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const reportsPerPage = 6;
 
@@ -24,7 +24,6 @@ export default function History() {
   };
 
   const handleEdit = (report) => {
-    // Open edit form or route to edit page
     console.log("Editing", report);
   };
 
@@ -32,42 +31,58 @@ export default function History() {
     const confirmed = window.confirm(`Delete report for ${report.name}?`);
     if (confirmed) {
       try {
-        await axios.delete(`http://localhost:8000/history/${report.id}`);
+        await client.delete(`/history/${report.id}`);
         toast.success("Deleted successfully");
-        // refresh state after deletion
+        setReports((prev) => prev.filter((r) => r.id !== report.id));
       } catch (err) {
-        toast.error("Failed to delete");
+        toast.error(err.response?.data?.detail || "Failed to delete");
       }
     }
   };
 
   useEffect(() => {
-    axios
-      .get("http://localhost:8000/history")
-      .then((res) => {
-        const data = Array.isArray(res.data) ? res.data : res.data.data || [];
-        setReports(data);
-        setFiltered(data);
-        setLoading(false);
-      })
-      .catch((err) => {
+    (async () => {
+      try {
+        const res = await client.get("/history", { params: { q: "", limit: 50 } });
+        // Expect backend to return: { items: [...] }
+        const items = Array.isArray(res.data)
+          ? res.data
+          : res.data.items || res.data.data || [];
+
+        // Normalize fields for the UI
+        const normalized = items.map((d) => ({
+          id: d.id,
+          name: d.patient_name || d.name,
+          age: d.patient_age || d.age,
+          medical_report: d.medical_report || "",
+          final_diagnosis: d.final_diagnosis || d.final || "",
+          created_at: d.created_at || null,
+        }));
+
+        setReports(normalized);
+        setFiltered(normalized);
+      } catch (err) {
         console.error("Failed to fetch history:", err);
+        toast.error(err.response?.data?.detail || "Failed to fetch history");
+      } finally {
         setLoading(false);
-      });
-  }, []);
+      }
+    })();
+  }, [client]);
 
   useEffect(() => {
     const q = search.toLowerCase();
     const filteredReports = reports.filter(
       (r) =>
-        r.name?.toLowerCase().includes(q) ||
-        r.medical_report?.toLowerCase().includes(q)
+        (r.name || "").toLowerCase().includes(q) ||
+        (r.medical_report || "").toLowerCase().includes(q) ||
+        (r.final_diagnosis || "").toLowerCase().includes(q)
     );
     setFiltered(filteredReports);
-    setCurrentPage(1); // reset to first page when search changes
+    setCurrentPage(1);
   }, [search, reports]);
 
-  // Pagination Logic
+  // Pagination
   const indexOfLastReport = currentPage * reportsPerPage;
   const indexOfFirstReport = indexOfLastReport - reportsPerPage;
   const currentReports = filtered.slice(indexOfFirstReport, indexOfLastReport);
@@ -82,12 +97,12 @@ export default function History() {
       <div className="relative w-full max-w-lg mx-auto mb-6">
         <input
           type="text"
-          placeholder="Search by name or report..."
+          placeholder="Search by name, report, or final diagnosis…"
           className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg shadow-sm"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
-        <MdSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-xl" />
+        <MdSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xl" />
       </div>
 
       {loading ? (
@@ -103,6 +118,7 @@ export default function History() {
                   <th className="px-4 py-3">Name</th>
                   <th className="px-4 py-3">Age</th>
                   <th className="px-4 py-3">Diagnosis Summary</th>
+                  <th className="px-4 py-3">Created</th>
                   <th></th>
                   <th></th>
                 </tr>
@@ -114,29 +130,32 @@ export default function History() {
                     className="border-t text-sm text-gray-700 hover:bg-blue-50 cursor-pointer transition"
                     onClick={() => handleRowClick(report)}
                   >
-                    <td className="px-4 py-3 whitespace-nowrap overflow-hidden text-ellipsis max-w-[80px]">
-                      {report.name}
+                    <td className="px-4 py-3">{report.name}</td>
+                    <td className="px-4 py-3">{report.age ?? "—"}</td>
+                    <td className="px-4 py-3 whitespace-nowrap overflow-hidden text-ellipsis max-w-[320px]">
+                      {report.final_diagnosis?.slice(0, 130) || report.medical_report?.slice(0, 130) || "—"}…
                     </td>
-                    <td className="px-4 py-3 max-w-[10px]">{report.age}</td>
-                    <td className="px-4 py-3 whitespace-nowrap overflow-hidden text-ellipsis max-w-[300px]">
-                      {report.final_diagnosis?.slice(0, 130)}...
+                    <td className="px-4 py-3">
+                      {report.created_at ? new Date(report.created_at).toLocaleString() : "—"}
                     </td>
-                    <td>
-                      {" "}
+                    <td className="px-2 py-3">
                       <MdEdit
                         onClick={(e) => {
                           e.stopPropagation();
                           handleEdit(report);
                         }}
+                        className="cursor-pointer"
+                        title="Edit"
                       />
                     </td>
-                    <td>
-                      {" "}
+                    <td className="px-2 py-3">
                       <MdDelete
                         onClick={(e) => {
                           e.stopPropagation();
                           handleDelete(report);
                         }}
+                        className="cursor-pointer"
+                        title="Delete"
                       />
                     </td>
                   </tr>
@@ -150,19 +169,10 @@ export default function History() {
                   <h2 className="text-xl font-semibold mb-4 text-blue-800">
                     Patient Report
                   </h2>
-                  <p className="mb-2">
-                    <strong>Name:</strong> {selectedPatient.name}
-                  </p>
-                  <p className="mb-2">
-                    <strong>Age:</strong> {selectedPatient.age}
-                  </p>
-                  <p className="mb-2">
-                    <strong>Report:</strong> {selectedPatient.medical_report}
-                  </p>
-                  <p className="mb-2">
-                    <strong>Final Diagnosis:</strong>{" "}
-                    {selectedPatient.final_diagnosis}
-                  </p>
+                  <p className="mb-2"><strong>Name:</strong> {selectedPatient.name}</p>
+                  <p className="mb-2"><strong>Age:</strong> {selectedPatient.age ?? "—"}</p>
+                  <p className="mb-2"><strong>Report:</strong> {selectedPatient.medical_report || "—"}</p>
+                  <p className="mb-2"><strong>Final Diagnosis:</strong> {selectedPatient.final_diagnosis || "—"}</p>
                   <div className="text-right mt-4">
                     <button
                       onClick={() => setShowModal(false)}
@@ -176,7 +186,7 @@ export default function History() {
             )}
           </div>
 
-          {/* Pagination Controls */}
+          {/* Pagination */}
           <div className="mt-4 flex justify-center items-center space-x-2">
             {[...Array(totalPages).keys()].map((page) => (
               <button

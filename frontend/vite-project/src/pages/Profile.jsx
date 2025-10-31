@@ -1,60 +1,66 @@
 // src/pages/Profile.jsx
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
-
-const API = "http://localhost:8000"; // adjust if needed
+import API from "../utils/api"; // ✅ shared axios client with token
 
 export default function Profile() {
   const navigate = useNavigate();
   const [doctor, setDoctor] = useState(null);
   const [editing, setEditing] = useState(false);
-  const [formData, setFormData] = useState({ name: "", email: "", specialization: "", hospital: "" });
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    specialization: "",
+    hospital: "",
+  });
 
   useEffect(() => {
-    const fetchProfile = async () => {
+    (async () => {
       try {
         const token = localStorage.getItem("token");
         if (!token) return navigate("/login");
 
-        const res = await axios.get(`${API}/me`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setDoctor(res.data);
+        const { data } = await API.get("/me"); // ✅ token auto-attached
+        setDoctor(data);
         setFormData({
-          name: res.data.name || "",
-          email: res.data.email || "",
-          specialization: res.data.specialization || "",
-          hospital: res.data.hospital || "",
+          name: data.name || "",
+          email: data.email || "",
+          specialization: data.specialization || "",
+          hospital: data.hospital || "",
         });
-      } catch (error) {
-        console.error("Failed to load profile", error);
+      } catch (err) {
+        console.error("Failed to load profile", err);
         toast.error("Session expired. Please login again.");
         localStorage.removeItem("token");
         navigate("/login");
       }
-    };
-    fetchProfile();
+    })();
   }, [navigate]);
 
-  const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
+  const handleChange = (e) =>
+    setFormData({ ...formData, [e.target.name]: e.target.value });
 
   const handleSave = async () => {
     try {
-      const token = localStorage.getItem("token");
-      await axios.put(`${API}/update_profile`, formData, {
-        headers: { Authorization: `Bearer ${token}` },
+      // PUT to /me (or /update_profile if you keep that path)
+      const { data } = await API.put("/me", {
+        name: formData.name,
+        specialization: formData.specialization || null,
+        hospital: formData.hospital || null,
       });
+      setDoctor(data);
       toast.success("Profile updated successfully!");
       setEditing(false);
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to update profile.");
+    } catch (err) {
+      console.error(err);
+      const msg = err.response?.data?.detail || "Failed to update profile.";
+      toast.error(msg);
     }
   };
 
-  if (!doctor) return <div className="flex h-screen items-center justify-center">Loading...</div>;
+  if (!doctor)
+    return <div className="flex h-screen items-center justify-center">Loading...</div>;
 
   return (
     <main className="min-h-screen bg-slate-50 py-8 px-4">
@@ -63,7 +69,9 @@ export default function Profile() {
           <h1 className="text-2xl font-semibold text-slate-800">👨‍⚕️ Doctor Profile</h1>
           <button
             onClick={() => setEditing(!editing)}
-            className={`px-4 py-2 rounded-lg text-white ${editing ? "bg-gray-600" : "bg-blue-600 hover:bg-blue-700"}`}
+            className={`px-4 py-2 rounded-lg text-white ${
+              editing ? "bg-gray-600" : "bg-blue-600 hover:bg-blue-700"
+            }`}
           >
             {editing ? "Cancel" : "Edit Profile"}
           </button>
@@ -140,8 +148,14 @@ export default function Profile() {
         <hr className="my-6" />
 
         <div className="text-sm text-slate-500">
-          <p><strong>Member since:</strong> {doctor.created_at ? new Date(doctor.created_at).toLocaleDateString() : "N/A"}</p>
-          <p><strong>Doctor ID:</strong> {doctor.id}</p>
+          {/* created_at might not exist in your Doctor model; safe fallback */}
+          <p>
+            <strong>Member since:</strong>{" "}
+            {doctor.created_at ? new Date(doctor.created_at).toLocaleDateString() : "N/A"}
+          </p>
+          <p>
+            <strong>Doctor ID:</strong> {doctor.id}
+          </p>
         </div>
       </div>
     </main>

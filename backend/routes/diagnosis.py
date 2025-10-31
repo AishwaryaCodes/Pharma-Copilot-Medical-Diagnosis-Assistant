@@ -1,13 +1,15 @@
-# routes/diagnosis.py
+# backend/routes/diagnosis.py
+# add this import
 from datetime import datetime
-from sqlalchemy.orm import Session
-from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
-from backend.database.schemas import ReportCreate as PatientReportCreate, ReportResponse as PatientReportResponse
 
-from backend.database.models import PatientReport
-from backend.database.database import SessionLocal
+from fastapi import APIRouter, HTTPException, Depends
+from sqlalchemy.orm import Session
+from pydantic import BaseModel
+
+from backend.database.database import get_db
+from backend.database.models import Diagnosis
 from backend.services.diagnosis_pipeline import run_diagnosis_pipeline
+from backend.utils.auth_utils import get_current_doctor
 
 router = APIRouter()
 
@@ -16,29 +18,46 @@ class DiagnosisRequest(BaseModel):
     age: int
     medical_report: str
 
-@router.post("/diagnose", response_model=PatientReportResponse)
-def diagnose_patient(data: DiagnosisRequest):
+@router.post("/diagnose")
+def diagnose(
+    payload: DiagnosisRequest,
+    db: Session = Depends(get_db),
+    current_doctor = Depends(get_current_doctor),
+):
     try:
-        # Run diagnosis pipeline
-        result = run_diagnosis_pipeline(data.name, data.age, data.medical_report)
+        result = run_diagnosis_pipeline(
+            name=payload.name,
+            age=payload.age,
+            medical_report=payload.medical_report,
+        )
 
-        # Save to DB
-        db = SessionLocal()
-        report = PatientReport(
-            name=result["name"],
-            age=result["age"],
-            medical_report=data.medical_report,
+        row = Diagnosis(
+            doctor_id=current_doctor.id,
+            patient_name=payload.name,
+            patient_age=payload.age,
+            medical_report=payload.medical_report,      # ✅ persist it
             cardiologist_result=result["cardiologist_result"],
             psychologist_result=result["psychologist_result"],
             pulmonologist_result=result["pulmonologist_result"],
-            final_diagnosis=result["final_diagnosis"]
+            final_diagnosis=result["final_diagnosis"],
+            created_at=datetime.utcnow(),
         )
-        db.add(report)
+
+        db.add(row)
         db.commit()
-        db.refresh(report)
-        db.close()
+        db.refresh(row)
 
-        return report
-
+        return {
+            "id": row.id,
+            "name": row.patient_name,
+            "age": row.patient_age,
+            "medical_report": row.medical_report,
+            "cardiologist_result": row.cardiologist_result,
+            "psychologist_result": row.psychologist_result,
+            "pulmonologist_result": row.pulmonologist_result,
+            "final_diagnosis": row.final_diagnosis,
+            "created_at": row.created_at,
+        }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Diagnosis failed: {str(e)}")
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Diagnosis failed: {e}")

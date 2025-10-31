@@ -1,46 +1,35 @@
-from datetime import datetime, timedelta
-from jose import JWTError, jwt
-from fastapi import Depends, HTTPException
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+# backend/utils/auth_utils.py
+from fastapi import Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
-from backend.database.database import SessionLocal
-from backend.database.doctor import Doctor
-from dotenv import load_dotenv
-import os
 
-load_dotenv()
+from backend.database.database import get_db
+from backend.database.models import Doctor
+from backend.auth.jwt_handler import verify_token
 
-SECRET_KEY = os.getenv("SECRET_KEY")
-ALGORITHM = os.getenv("ALGORITHM", "HS256")
-ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 30))
-
-# Use simple Bearer scheme (not OAuth2)
-oauth2_scheme = HTTPBearer()
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
 def get_current_doctor(
-    credentials: HTTPAuthorizationCredentials = Depends(oauth2_scheme),
-    db: Session = Depends(get_db)
+    token: str = Depends(oauth2_scheme),
+    db: Session = Depends(get_db),
 ) -> Doctor:
-    token = credentials.credentials  # Extract raw token string
-    credentials_exception = HTTPException(status_code=401, detail="Invalid token")
+    """
+    Decode JWT, fetch the Doctor from DB, or 401.
+    """
+    payload = verify_token(token)
+    if not payload or "sub" not in payload:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or expired token.",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
 
-    try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        email = payload.get("sub")
-        if email is None:
-            raise credentials_exception
-    except JWTError:
-        raise credentials_exception
-
+    email = payload["sub"]
     doctor = db.query(Doctor).filter(Doctor.email == email).first()
-    if doctor is None:
-        raise credentials_exception
-
+    if not doctor:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="User not found.",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
     return doctor

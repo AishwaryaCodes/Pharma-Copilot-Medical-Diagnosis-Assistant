@@ -23,3 +23,12 @@ engine = create_engine(
 # Session and Base for ORM
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
+
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+    print(f"[DB] Using DATABASE_URL={DATABASE_URL}")
