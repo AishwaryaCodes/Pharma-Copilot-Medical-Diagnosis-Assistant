@@ -1,5 +1,5 @@
 fastapi
-uvicorn
+uvicorn[standard]
 pydantic
 httpx
 transformers
@@ -14,3 +14,6 @@ langchain-core
 python-dotenv
 passlib[bcrypt]
 python-jose[cryptography]
+
+
+psycopg[binary]==3.2.3
