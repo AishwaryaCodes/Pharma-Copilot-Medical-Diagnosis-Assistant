@@ -1,5 +1,4 @@
 # db/schemas.py
-
 from pydantic import BaseModel
 
 class ReportBase(BaseModel):

@@ -1,26 +1,25 @@
+# backend/database/database.py
 import os
 from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, declarative_base
 from dotenv import load_dotenv
 
-# Load environment variables from .env
 load_dotenv()
 
-# Fallback to SQLite if no DB URL provided
 DATABASE_URL = os.getenv("DATABASE_URL")
 if not DATABASE_URL:
+    # local SQLite fallback
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-    DATABASE_PATH = os.path.join(BASE_DIR, "..", "diagnosis.db")
-    DATABASE_URL = f"sqlite:///{DATABASE_PATH}"
+    DB_PATH = os.path.join(BASE_DIR, "..", "diagnosis.db")
+    DATABASE_URL = f"sqlite:///{DB_PATH}"
 
-# Setup engine with PostgreSQL support later
+is_sqlite = DATABASE_URL.startswith("sqlite")
+
 engine = create_engine(
     DATABASE_URL,
-    connect_args={"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {}
+    pool_pre_ping=True,
+    connect_args={"check_same_thread": False} if is_sqlite else {}
 )
-
-# Session and Base for ORM
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
@@ -31,4 +30,4 @@ def get_db():
     finally:
         db.close()
 
-    print(f"[DB] Using DATABASE_URL={DATABASE_URL}")
+print(f"[DB] Using DATABASE_URL={DATABASE_URL}")
