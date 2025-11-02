@@ -1,7 +1,8 @@
+// src/pages/Register.jsx
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import toast from "react-hot-toast";
-import API from "../utils/api"; // ✅ shared axios client
+import API from "../utils/api"; // shared axios client
 
 export default function Register() {
   const navigate = useNavigate();
@@ -9,11 +10,11 @@ export default function Register() {
     name: "",
     email: "",
     password: "",
-    // Optional fields (your DB allows them to be null):
     specialization: "",
     hospital: "",
   });
   const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
   const handleChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -22,8 +23,16 @@ export default function Register() {
     e.preventDefault();
     setError("");
 
+    if ((formData.password || "").length < 6) {
+      setError("Password must be at least 6 characters.");
+      toast.error("Password must be at least 6 characters.");
+      return;
+    }
+
     try {
-      // ✅ Register (keep optional fields if filled)
+      setSubmitting(true);
+
+      // Register (backend may ignore specialization/hospital if not wired yet—safe to send)
       await API.post("/register", {
         name: formData.name,
         email: formData.email,
@@ -32,16 +41,9 @@ export default function Register() {
         hospital: formData.hospital || null,
       });
 
-      // ✅ Auto-login after register
-      const { data } = await API.post("/login", {
-        email: formData.email,
-        password: formData.password,
-      });
-
-      if (!data?.access_token) throw new Error("No token received");
-      localStorage.setItem("token", data.access_token);
-      toast.success("Account created!");
-      navigate("/dashboard");
+      toast.success("Account created! Please log in.");
+      // ✅ redirect to Login page (no auto-login)
+      navigate("/login");
     } catch (err) {
       const msg =
         err.response?.data?.detail ||
@@ -49,6 +51,8 @@ export default function Register() {
         "Registration failed";
       setError(msg);
       toast.error(msg);
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -94,14 +98,14 @@ export default function Register() {
           <input
             type="password"
             name="password"
-            placeholder="Password"
+            placeholder="Password (min 6 chars)"
             value={formData.password}
             onChange={handleChange}
             required
             className="w-full p-2 mb-3 border border-gray-300 rounded"
           />
 
-          {/* Optional fields (safe to leave blank) */}
+          {/* Optional fields */}
           <input
             type="text"
             name="specialization"
@@ -119,8 +123,14 @@ export default function Register() {
             className="w-full p-2 mb-4 border border-gray-300 rounded"
           />
 
-          <button type="submit" className="w-full bg-green-600 text-white p-2 rounded hover:bg-green-700">
-            Register
+          <button
+            type="submit"
+            disabled={submitting}
+            className={`w-full text-white p-2 rounded transition ${
+              submitting ? "bg-green-400 cursor-not-allowed" : "bg-green-600 hover:bg-green-700"
+            }`}
+          >
+            {submitting ? "Creating..." : "Register"}
           </button>
 
           <p className="text-center text-sm mt-4">
