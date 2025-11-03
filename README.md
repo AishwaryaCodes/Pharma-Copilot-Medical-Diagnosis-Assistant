@@ -1,96 +1,118 @@
-**Doctors often struggle to quickly analyze detailed medical reports, reference similar past cases, and provide multi-specialist insights during diagnosis. This can lead to delays, oversight, or repetitive work, especially in high-pressure clinical environments.**
---- Pharma Copilot addresses this by offering an AI-powered assistant that streamlines diagnosis, retrieves similar past cases, and simulates analysis from cardiologist, pulmonologist, and psychologist perspectives, all in one place.
+# 🩺 Pharma Copilot — AI-Powered Diagnostic Assistant for Doctors
+
+**Doctors often struggle to quickly analyze detailed medical reports, reference similar past cases, and provide multi-specialist insights during diagnosis.**  
+Pharma Copilot solves this by offering an AI-powered assistant that streamlines diagnosis, retrieves similar past cases, and simulates analysis from **Cardiologist**, **Pulmonologist**, and **Psychologist** perspectives — all in one interface.
 
 ---
 
-## Core Functionalities for Doctors:
-1) **Enter Patient Details**
-- Add patient name, age, and medical report
-  
-2) **AI Diagnosis via Specialist Agents**
-- Uses Cardiologist, Pulmonologist, and Psychologist agents
-- Agents analyze the report using vector similarity and provide health condition assessments
-  
-3) **Semantic Search Using FAISS**
-- Embeds medical reports using SentenceTransformer
-- Searches similar past cases to assist in diagnosis recommendations
-  
-4) **Diagnosis History Viewer**
-- Automatically stores all diagnosis records
-- Searchable and filterable diagnosis history by name or report
-- Pagination for easy navigation
-- Doctors can edit or delete past records if needed
-  
-5) **LLM-Ready Architecture**
-- Backend designed to easily plug in Hugging Face or OpenAI models for advanced explanations or treatment suggestions
+## 🚀 Core Functionalities
+
+1️⃣ **Enter Patient Details**  
+- Input patient name, age, and medical report  
+- Upload attachments (images, PDFs, or DOCX)
+
+2️⃣ **AI Diagnosis via Specialist Agents**  
+- Cardiologist, Pulmonologist, and Psychologist agents analyze reports  
+- Multi-specialist outputs merged into a single summary  
+
+3️⃣ **Semantic Search Using FAISS**  
+- SentenceTransformer + FAISS for vector-based similarity  
+- Finds similar past cases for faster, more accurate insights  
+
+4️⃣ **Diagnosis History Viewer**  
+- Auto-saves every diagnosis with pagination and search  
+- Doctors can edit or delete past records  
+
+5️⃣ **LLM-Ready Architecture**  
+- Backend ready for Hugging Face / OpenAI integration  
+- Enables deeper reasoning, explanations, and treatment suggestions
 
 ---
 
-## Tech Stack
+## ⚙️ Tech Stack
 
-###  Backend
-- **FastAPI** – Lightning-fast web API for Python
-- **SQLAlchemy + SQLite** – ORM and lightweight database
-- **Sentence Transformers + FAISS** – For semantic similarity search in diagnosis history
-- **Hugging Face Transformers** – (LLM integration for future reasoning and explanation)
-- **Pydantic** – Data validation
-- **python-dotenv** – Secure environment variable management
-- **Uvicorn** – ASGI server for running FastAPI
+### 🧠 Backend
+- **FastAPI**, **SQLAlchemy + SQLite**
+- **Sentence Transformers + FAISS**
+- **Hugging Face Transformers**
+- **Pydantic**, **python-dotenv**, **Uvicorn**
 
-###  Frontend
-- **React (Vite)** – Fast SPA frontend
-- **Tailwind CSS** – Utility-first styling
-- **DaisyUI** – Styled UI components + Toasts
-- **React Router** – For page routing
+### 💻 Frontend
+- **React (Vite)**, **Tailwind CSS**, **DaisyUI**
+- **React Router**
 
 ---
 
-##  Screenshots
+## 🖼️ Screenshots
 
-###  1. Enter Patient Details  
-Form where doctors input the patient's name, age, and medical report to begin diagnosis.
+> All screenshots below are sized consistently for a clean README.
 
-<img src="https://github.com/user-attachments/assets/2765c2a5-2fb2-4140-9e5b-4923b2ca3b4f" width="600"/>
+### 1️⃣ Create Account / Login  
+Doctors register and sign in securely.  
 
----
+<img src="https://github.com/user-attachments/assets/17a8fd0c-7ddb-402a-bb7c-bf1307951311" width="700" alt="Pharma Copilot UI Screenshot" />
+<br/>
 
-###  2. AI Diagnosis Loading Indicator  
-Animated loader indicating that the AI agents are processing the input.
-
-<img src="https://github.com/user-attachments/assets/8361492c-9207-499f-b6a9-e6ceb54560e1" width="600"/>
+<img src="https://github.com/user-attachments/assets/4290f9dc-ffd6-4fe5-a8ec-2df7098c07cb" width="700" alt="Login screen" />
 
 ---
 
-###  3. Diagnosis Results (Accordion View)  
-All AI agent responses (Cardiologist, Pulmonologist, Psychologist) are grouped into collapsible sections for clarity.
+### 2️⃣ Doctor Dashboard – Overview  
+Shows total patients, AI turnaround time, success rate, and recent diagnoses.  
 
-<img src="https://github.com/user-attachments/assets/29c1a629-c7b0-4e56-a8d1-1cd072609e0d" width="600"/>
+<img src="https://github.com/user-attachments/assets/db9be141-5dff-43de-b384-f99e6d23f715" width="700" alt="Dashboard KPIs" />
+<br/>
 
----
-
-###  4. Expanded Cardiologist Report  
-Example of an expanded specialist report providing detailed diagnosis.
-
-<img src="https://github.com/user-attachments/assets/f0a0923e-dd19-423d-9937-0def0faff5e3" width="600"/>
+<img src="https://github.com/user-attachments/assets/71626ab1-a579-44cf-ada6-4d74c0b34cf4" width="700" alt="Dashboard insights widgets" />
 
 ---
 
-### 5. Diagnosis History with Pagination  
-Doctors can view past records with full history, pagination, search, and action buttons.
+### 3️⃣ Diagnosis History – Search + Pagination  
+Search and manage all past diagnoses, edit / delete / re-analyze.  
 
-<img src="https://github.com/user-attachments/assets/9778572f-54c1-419b-ba54-26b292b98182" width="600"/>
+<img src="https://github.com/user-attachments/assets/218868d6-a2dd-4706-b9cb-70e154898af0" width="700" alt="Diagnosis history table with pagination" />
 
 ---
 
-###  6. View Full Report in Modal  
-Modal showing complete patient details and diagnosis when the user clicks the "edit" or "view" button.
+### 4️⃣ Create New Diagnosis  
+Enter patient details, attach reports, and run AI diagnosis.  
 
-<img src="https://github.com/user-attachments/assets/b123cd9b-a5f2-4e67-a92c-cf9cf6c72b9d" width="600"/>
+<img src="https://github.com/user-attachments/assets/8cee2ee8-5599-46a0-8921-aa03a5e8b2f6" width="700" alt="New diagnosis form" />
+<br/>
 
+<img src="https://github.com/user-attachments/assets/6df349d5-30e4-4c69-86a7-8f22eb516eab" width="700" alt="New diagnosis compact layout" />
 
---- 
+---
 
-## Installation 
+### 5️⃣ Diagnosis Processing + Agent Results  
+Shows progress indicators and detailed results from multiple specialists.  
+
+<img src="https://github.com/user-attachments/assets/83e0486c-d90a-4af8-9b11-ecb522035e29" width="700" alt="Specialist agent results" />
+
+---
+
+### 6️⃣ Final AI Diagnosis Summary  
+Displays overall AI-generated assessment and case statistics.  
+
+<img src="https://github.com/user-attachments/assets/7f594b98-c83b-4ac3-859f-19d269a625e0" width="700" alt="Final diagnosis summary" />
+
+---
+
+### 7️⃣ Doctor Profile Page  
+View or update doctor information and linked hospital.  
+
+<img src="https://github.com/user-attachments/assets/9b59684d-5ca8-4af3-aecf-cae2e949b870" width="700" alt="Doctor profile page" />
+
+---
+
+### 8️⃣ Similar Cases  
+Semantic search surfaces related past cases to assist diagnosis.  
+
+<img src="https://github.com/user-attachments/assets/94cc43c9-9a07-456a-a82b-40267d788ba3" width="700" alt="Similar cases panel" />
+
+---
+
+## Installation
 
 ```
 git clone https://github.com/your-username/pharma-copilot.git
@@ -133,5 +155,3 @@ npm run dev
 
 Thanks <br>
 -akundur17@gmail.com 
-
-
